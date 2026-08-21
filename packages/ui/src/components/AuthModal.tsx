@@ -58,20 +58,20 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-md p-6 relative space-y-5"
+        className="bg-white dark:bg-[#111111] rounded-2xl shadow-2xl border border-gray-200/80 dark:border-[#1f1f1f] w-full max-w-md p-6 relative space-y-5 animate-slideUp"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
+        <div className="flex items-center justify-between border-b border-gray-100 dark:border-[#1f1f1f] pb-4">
           <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <span>Bearer Token Authorization</span>
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl font-bold p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg font-bold p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1f1f1f] transition-colors"
             aria-label="Close"
           >
             ✕
@@ -79,9 +79,9 @@ const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         {token && (
-          <div className="text-xs bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 p-2.5 rounded-lg flex items-center justify-between">
+          <div className="text-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 p-3 rounded-xl flex items-center justify-between">
             <span className="font-semibold">Active Token:</span>
-            <span className="font-mono bg-emerald-100 dark:bg-emerald-900/60 px-2 py-0.5 rounded">
+            <span className="font-mono bg-emerald-500/15 px-2 py-0.5 rounded">
               {getMaskedToken(token)}
             </span>
           </div>
@@ -89,7 +89,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
         <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">
               Token Value
             </label>
             <input
@@ -97,17 +97,17 @@ const AuthModal: React.FC<AuthModalProps> = ({
               placeholder="Enter Bearer token..."
               value={inputToken}
               onChange={(e) => setInputToken(e.target.value)}
-              className="w-full px-3.5 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+              className="w-full px-3.5 py-2.5 text-sm border-b border-gray-300 dark:border-gray-700 bg-transparent text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500 focus:ring-0 font-mono transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-600"
               autoFocus
             />
           </div>
 
-          <div className="flex items-center justify-end space-x-2 pt-2">
+          <div className="flex items-center justify-end space-x-2 pt-3">
             {token && (
               <button
                 type="button"
                 onClick={handleClear}
-                className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition"
+                className="px-4 py-2 text-sm font-medium rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 transition-colors"
               >
                 Clear
               </button>
@@ -115,13 +115,13 @@ const AuthModal: React.FC<AuthModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-1.5 text-sm font-semibold rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+              className="px-4 py-2 text-sm font-medium rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#161616] transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition"
+              className="px-5 py-2 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition-colors"
             >
               Authorize
             </button>

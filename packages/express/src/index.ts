@@ -54,6 +54,18 @@ export function routeui(app: Express, options?: RouteUIOptions) {
       return res.send(JSON.stringify(scanRoutes(app)));
     }
 
+    // Handle metadata info JSON request (version)
+    if (currentPath === "/meta" || currentPath === "/__routeui/meta") {
+      res.setHeader("Content-Type", "application/json");
+      let version = "0.1.0";
+      try {
+        const reqFunc = createRequire(import.meta.url);
+        const pkg = reqFunc(path.resolve(process.cwd(), "package.json"));
+        if (pkg && pkg.version) version = pkg.version;
+      } catch {}
+      return res.send(JSON.stringify({ version }));
+    }
+
     // Serve HTML documentation interface
     if (req.method === "GET") {
       if (uiHtml) {
