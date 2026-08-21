@@ -5,9 +5,10 @@ import { InternalRoute } from '../utils/api';
 
 interface Props {
   route: InternalRoute;
+  bearerToken?: string;
 }
 
-const RouteCard: React.FC<Props> = ({ route }) => {
+const RouteCard: React.FC<Props> = ({ route, bearerToken }) => {
   const [expanded, setExpanded] = useState(false);
 
   const toggle = () => setExpanded((prev) => !prev);
@@ -63,7 +64,7 @@ const RouteCard: React.FC<Props> = ({ route }) => {
               </div>
             </div>
           </div>
-          <RequestForm route={route} />
+          <RequestForm route={route} bearerToken={bearerToken} />
         </div>
       )}
     </div>

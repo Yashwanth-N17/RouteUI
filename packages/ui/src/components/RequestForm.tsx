@@ -3,6 +3,7 @@ import { InternalRoute, fillPathParams } from '../utils/api';
 
 interface RequestFormProps {
   route: InternalRoute;
+  bearerToken?: string;
 }
 
 interface KeyValue {
@@ -10,7 +11,7 @@ interface KeyValue {
   value: string;
 }
 
-const RequestForm: React.FC<RequestFormProps> = ({ route }) => {
+const RequestForm: React.FC<RequestFormProps> = ({ route, bearerToken }) => {
   // Extract param names like :id from the path
   const paramNames = Array.from(route.path.matchAll(/:([a-zA-Z0-9_]+)/g)).map((m) => m[1]);
 
@@ -64,9 +65,18 @@ const RequestForm: React.FC<RequestFormProps> = ({ route }) => {
     try {
       const url = buildUrl();
       const headers = new Headers();
+      let hasManualAuth = false;
       headerParams.forEach(({ key, value }) => {
-        if (key) headers.append(key, value);
+        if (key) {
+          headers.append(key, value);
+          if (key.toLowerCase() === 'authorization') {
+            hasManualAuth = true;
+          }
+        }
       });
+      if (bearerToken && !hasManualAuth) {
+        headers.set('Authorization', `Bearer ${bearerToken}`);
+      }
       const options: RequestInit = {
         method: route.method,
         headers,
@@ -197,6 +207,11 @@ const RequestForm: React.FC<RequestFormProps> = ({ route }) => {
         >
           + Add header
         </button>
+        {bearerToken && (
+          <p className="text-xs italic text-gray-500 dark:text-gray-400 mt-1">
+            Global Bearer token will be applied
+          </p>
+        )}
       </div>
       {/* Body */}
       {['POST', 'PUT', 'PATCH'].includes(route.method) && (

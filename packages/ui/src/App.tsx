@@ -1,11 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { InternalRoute } from './utils/api';
 import RouteCard from './components/RouteCard';
+import AuthModal from './components/AuthModal';
+
+const TOKEN_KEY = 'routeui_bearer_token';
 
 const App: React.FC = () => {
   const [routes, setRoutes] = useState<InternalRoute[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [bearerToken, setBearerToken] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem(TOKEN_KEY) || '';
+    }
+    return '';
+  });
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  const handleSaveToken = (newToken: string) => {
+    setBearerToken(newToken);
+    if (newToken) {
+      sessionStorage.setItem(TOKEN_KEY, newToken);
+    } else {
+      sessionStorage.removeItem(TOKEN_KEY);
+    }
+  };
+
+  const handleClearToken = () => {
+    setBearerToken('');
+    sessionStorage.removeItem(TOKEN_KEY);
+  };
 
   useEffect(() => {
     const fetchRoutes = async () => {
@@ -92,6 +118,16 @@ const App: React.FC = () => {
             className="px-3.5 py-1.5 border rounded-lg bg-gray-50 dark:bg-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-64 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
           />
           <button
+            onClick={() => setIsAuthModalOpen(true)}
+            className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all shadow-sm border shrink-0 ${
+              bearerToken
+                ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 dark:text-emerald-300 dark:border-emerald-800'
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 dark:border-gray-600'
+            }`}
+          >
+            <span>{bearerToken ? 'Authorized 🔓' : 'Authorize 🔒'}</span>
+          </button>
+          <button
             onClick={toggleDark}
             className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all shadow-sm border border-gray-300 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 shrink-0"
           >
@@ -130,7 +166,7 @@ const App: React.FC = () => {
                 </div>
                 <div className="flex flex-col space-y-3">
                   {groupRoutes.map((route, idx) => (
-                    <RouteCard key={idx} route={route} />
+                    <RouteCard key={idx} route={route} bearerToken={bearerToken} />
                   ))}
                 </div>
               </section>
@@ -138,6 +174,14 @@ const App: React.FC = () => {
           </div>
         )}
       </main>
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        token={bearerToken}
+        onSave={handleSaveToken}
+        onClear={handleClearToken}
+      />
     </div>
   );
 };
