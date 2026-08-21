@@ -15,6 +15,7 @@ describe("Example Applications Integration Tests", () => {
       { method: "GET", path: "/", handlers: ["<anonymous>"], middleware: [] },
       { method: "GET", path: "/health", handlers: ["<anonymous>"], middleware: [] },
       { method: "GET", path: "/users", handlers: ["<anonymous>"], middleware: [] },
+      { method: "GET", path: "/users/profile", handlers: ["getUserProfile"], middleware: [] },
       { method: "POST", path: "/users", handlers: ["<anonymous>"], middleware: [] },
       { method: "PUT", path: "/users", handlers: ["<anonymous>"], middleware: [] },
       { method: "DELETE", path: "/users", handlers: ["<anonymous>"], middleware: [] },

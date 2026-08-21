@@ -17,5 +17,7 @@ export interface ExpressLayer {
     stack?: ExpressLayer[];
   };
 
+  path?: string | string[];
+  keys?: Array<{ name: string | number }>;
   regexp?: RegExp;
 }

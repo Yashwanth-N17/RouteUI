@@ -25,7 +25,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "scan": "node dist/index.js scan"
   },
   "dependencies": {
     "@routeui/core": "workspace:*"
