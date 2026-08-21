@@ -28,7 +28,7 @@ export function autoRegister(expressModule: any): void {
     if (stack) {
       const layer = stack[stack.length - 1];
       if (layer?.name === "mounted_app") {
-        const subAppArg = args.find((a: any) => typeof a === "function" && a.name === "app" && "handle" in a);
+        const subAppArg = args.find((a: any) => typeof a === "function" && "_router" in a && "handle" in a);
         if (subAppArg) {
           subAppRegistry.set(layer.handle, subAppArg);
         }

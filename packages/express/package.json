@@ -33,11 +33,15 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "test": "vitest run"
   },
   "dependencies": {
     "@routeui/core": "workspace:*",
     "@routeui/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.0"
   },
   "peerDependencies": {
     "express": "^4.0.0 || ^5.0.0"

@@ -22,20 +22,7 @@ export interface RouteUIOptions {
  * ```
  */
 export function routeui(app: Express, options?: RouteUIOptions) {
-  // Ensure GET /__routeui/routes endpoint is registered on the app
-  if (app && typeof app.get === "function") {
-    // Check if routeui metadata route is already registered
-    const stack = (app as any)._router?.stack || [];
-    const exists = stack.some(
-      (layer: any) => layer.route?.path === "/__routeui/routes"
-    );
-    if (!exists) {
-      app.get("/__routeui/routes", (req, res) => {
-        res.setHeader("Content-Type", "application/json");
-        res.json(scanRoutes(app));
-      });
-    }
-  }
+
 
   let uiHtml = "";
 

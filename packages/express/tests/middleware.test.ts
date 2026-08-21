@@ -9,18 +9,22 @@ describe("@routeui/express middleware", () => {
     expect(typeof middleware).toBe("function");
   });
 
-  it("should automatically register /__routeui/routes endpoint on express app", () => {
+  it("should handle /__routeui/routes via middleware", () => {
     const app = express();
     app.get("/health", (req, res) => res.json({ ok: true }));
 
-    // Mount middleware
-    app.use("/docs", routeui(app));
+    const middleware = routeui(app);
+    let jsonSent: any = null;
+    const req = { path: "/__routeui/routes" } as any;
+    const res = {
+      setHeader: () => {},
+      send: (data: string) => {
+        jsonSent = JSON.parse(data);
+      },
+    } as any;
 
-    const stack = (app as any)._router.stack;
-    const hasMetadataRoute = stack.some(
-      (layer: any) => layer.route?.path === "/__routeui/routes"
-    );
-
-    expect(hasMetadataRoute).toBe(true);
+    middleware(req, res, () => {});
+    expect(jsonSent).toBeDefined();
+    expect(Array.isArray(jsonSent)).toBe(true);
   });
 });
