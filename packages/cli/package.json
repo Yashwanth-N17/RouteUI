@@ -1,0 +1,33 @@
+{
+  "name": "@routeui/cli",
+  "version": "0.1.0",
+  "description": "CLI scanner for Express.js routes",
+  "license": "MIT",
+  "author": "Yashwanth N",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yashwanth-N17/RouteUI.git"
+  },
+  "keywords": [
+    "express",
+    "routes",
+    "cli",
+    "scanner"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "type": "module",
+  "bin": {
+    "routeui": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup"
+  },
+  "dependencies": {
+    "@routeui/core": "workspace:*"
+  }
+}

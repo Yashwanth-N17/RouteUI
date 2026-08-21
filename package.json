@@ -1,0 +1,46 @@
+{
+  "name": "routeui",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Runtime route detection with an interactive API explorer for Express.js",
+  "license": "MIT",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yashwanth-N17/RouteUI.git"
+  },
+  "homepage": "https://github.com/Yashwanth-N17/RouteUI",
+  "bugs": {
+    "url": "https://github.com/Yashwanth-N17/RouteUI/issues"
+  },
+  "keywords": [
+    "express",
+    "middleware",
+    "api",
+    "swagger",
+    "route",
+    "typescript"
+  ],
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r dev",
+    "lint": "pnpm -r lint",
+    "clean": "pnpm -r clean",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "prettier": "^3.9.6",
+    "tsup": "^8.5.1",
+    "typescript": "~5.9.2",
+    "vitest": "^4.1.10"
+  }
+}
