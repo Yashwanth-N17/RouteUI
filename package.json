@@ -31,8 +31,8 @@
     "clean": "pnpm -r clean",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "test": "vitest",
-    "test:watch": "vitest --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:coverage": "vitest --coverage"
   },
   "devDependencies": {
