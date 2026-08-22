@@ -4,12 +4,22 @@ import RouteCard from './components/RouteCard';
 import AuthModal from './components/AuthModal';
 
 const TOKEN_KEY = 'routeui_bearer_token';
+const BASE_URL_KEY = 'routeui_base_url';
 
 const App: React.FC = () => {
   const [routes, setRoutes] = useState<InternalRoute[]>([]);
   const [version, setVersion] = useState<string>('0.1.0');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [downloadingOpenApi, setDownloadingOpenApi] = useState(false);
+  const [toastError, setToastError] = useState<string | null>(null);
+
+  const [baseUrl, setBaseUrl] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem(BASE_URL_KEY) || window.location.origin;
+    }
+    return 'http://localhost:3000';
+  });
 
   const [bearerToken, setBearerToken] = useState<string>(() => {
     if (typeof window !== 'undefined') {
@@ -38,6 +48,28 @@ const App: React.FC = () => {
     const pathname = window.location.pathname;
     const basePath = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
     return `${basePath}${endpoint}`;
+  };
+
+  const handleDownloadOpenApi = async () => {
+    setDownloadingOpenApi(true);
+    try {
+      const res = await fetch(getEndpointUrl('/__routeui/openapi.json'));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'openapi.json';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err: any) {
+      setToastError(err.message || 'Failed to download OpenAPI spec');
+      setTimeout(() => setToastError(null), 3000);
+    } finally {
+      setDownloadingOpenApi(false);
+    }
   };
 
   useEffect(() => {
@@ -89,31 +121,30 @@ const App: React.FC = () => {
     }
   }, [isDark]);
 
-  const toggleDark = () => {
-    setIsDark((prev) => !prev);
-  };
+  const toggleDark = () => setIsDark((prev) => !prev);
 
   const [searchTerm, setSearchTerm] = useState('');
 
-  const getGroupTag = (path: string): string => {
-    const parts = path.split('/').filter(Boolean);
-    if (parts.length === 0) return 'default';
-    if (parts[0] === '__routeui') return 'internal';
-    return `/${parts[0]}`;
-  };
-
-  const filteredRoutes = routes
-    .filter((r) => !r.path.startsWith('/__routeui'))
-    .filter((r) =>
-      r.path.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.method.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.handlers.some((h) => h.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredRoutes = routes.filter((r) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      r.path.toLowerCase().includes(term) ||
+      r.method.toLowerCase().includes(term) ||
+      r.handlers.some((h) => h.toLowerCase().includes(term))
     );
+  });
 
   const groupedRoutes = filteredRoutes.reduce((acc, route) => {
-    const tag = getGroupTag(route.path);
-    if (!acc[tag]) acc[tag] = [];
-    acc[tag].push(route);
+    const segments = route.path.split('/').filter(Boolean);
+    let group = 'default';
+    if (segments.length > 0) {
+      const first = segments[0];
+      if (!first.startsWith(':')) {
+        group = first;
+      }
+    }
+    if (!acc[group]) acc[group] = [];
+    acc[group].push(route);
     return acc;
   }, {} as Record<string, InternalRoute[]>);
 
@@ -128,10 +159,9 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-full flex flex-col bg-[#f8f8f8] dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 transition-colors duration-200">
-      {/* Taller Header (64px) with subtle bottom border */}
+      {/* Top Navbar */}
       <header className="h-16 h-16-override sticky top-0 z-40 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between border-b border-gray-200/80 dark:border-[#1f1f1f]">
         <div className="flex items-center space-x-3.5">
-          {/* Curved path SVG Icon */}
           <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <circle cx="5" cy="12" r="2.5" fill="currentColor" />
@@ -140,7 +170,9 @@ const App: React.FC = () => {
             </svg>
           </div>
           <div className="flex items-center space-x-2">
-            <h1 className="text-base font-bold tracking-tight text-gray-900 dark:text-gray-100">RouteUI</h1>
+            <h1 className="text-base font-bold tracking-tight text-gray-900 dark:text-gray-100">
+              RouteUI
+            </h1>
             <span className="text-[11px] font-mono font-medium bg-gray-100 dark:bg-[#1f1f1f] text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-md border border-gray-200/60 dark:border-gray-800">
               v{version}
             </span>
@@ -156,7 +188,12 @@ const App: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="px-3.5 py-1.5 pl-9 text-sm border-b border-gray-300 dark:border-gray-700 bg-transparent text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500 focus:ring-0 w-56 font-sans placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-colors"
             />
-            <svg className="w-4 h-4 text-gray-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-4 h-4 text-gray-400 absolute left-2.5 top-2.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
@@ -175,6 +212,15 @@ const App: React.FC = () => {
 
           <button
             type="button"
+            onClick={handleDownloadOpenApi}
+            disabled={downloadingOpenApi}
+            className="bg-gray-100 dark:bg-[#161616] hover:bg-gray-200 dark:hover:bg-[#1f1f1f] text-gray-700 dark:text-gray-300 border border-gray-200/80 dark:border-[#1f1f1f] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all disabled:opacity-50 shrink-0"
+          >
+            {downloadingOpenApi ? 'Downloading...' : 'Download OpenAPI'}
+          </button>
+
+          <button
+            type="button"
             onClick={toggleDark}
             className="p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#161616] border border-transparent dark:border-[#1f1f1f] transition-colors"
             aria-label="Toggle theme"
@@ -183,6 +229,37 @@ const App: React.FC = () => {
           </button>
         </div>
       </header>
+
+      {/* Base URL Switcher Bar */}
+      <div className="border-b border-gray-200 dark:border-[#1f1f1f] bg-transparent px-4 sm:px-8 py-2 flex items-center space-x-2 text-xs font-mono text-gray-600 dark:text-gray-400">
+        <span className="font-semibold text-gray-500 dark:text-gray-400 shrink-0">Base URL:</span>
+        {baseUrl !== window.location.origin && (
+          <span
+            className="w-2 h-2 rounded-full bg-amber-500 shrink-0 inline-block animate-pulse"
+            title="Requests will be sent to an external server"
+          />
+        )}
+        <input
+          type="text"
+          value={baseUrl}
+          onChange={(e) => setBaseUrl(e.target.value)}
+          onBlur={() => {
+            if (typeof window !== 'undefined') {
+              sessionStorage.setItem(BASE_URL_KEY, baseUrl);
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              if (typeof window !== 'undefined') {
+                sessionStorage.setItem(BASE_URL_KEY, baseUrl);
+              }
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+          className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-xs font-mono text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
+          placeholder="http://localhost:3000"
+        />
+      </div>
 
       {/* Main Content & Sidebar Layout */}
       <div className="flex-1 flex max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 gap-8">
@@ -301,7 +378,7 @@ const App: React.FC = () => {
                   </div>
                   <div className="flex flex-col space-y-3.5">
                     {groupRoutes.map((route, idx) => (
-                      <RouteCard key={`${route.method}-${route.path}`} index={idx} route={route} bearerToken={bearerToken} />
+                      <RouteCard key={`${route.method}-${route.path}`} index={idx} route={route} bearerToken={bearerToken} baseUrl={baseUrl} />
                     ))}
                   </div>
                 </section>
@@ -310,6 +387,12 @@ const App: React.FC = () => {
           )}
         </main>
       </div>
+
+      {toastError && (
+        <div className="fixed bottom-4 right-4 bg-rose-600 text-white text-xs font-medium px-4 py-2.5 rounded-xl shadow-lg z-50 animate-slideUp">
+          {toastError}
+        </div>
+      )}
 
       <AuthModal
         isOpen={isAuthModalOpen}

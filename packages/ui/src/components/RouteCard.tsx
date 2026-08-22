@@ -6,6 +6,7 @@ import { InternalRoute } from '../utils/api';
 interface Props {
   route: InternalRoute;
   bearerToken?: string;
+  baseUrl?: string;
   index?: number;
 }
 
@@ -19,7 +20,7 @@ const methodAccentColors: Record<string, string> = {
   OPTIONS: 'border-l-gray-500',
 };
 
-const RouteCard: React.FC<Props> = ({ route, bearerToken, index = 0 }) => {
+const RouteCard: React.FC<Props> = ({ route, bearerToken, baseUrl, index = 0 }) => {
   const [expanded, setExpanded] = useState(false);
   const [isTryItOut, setIsTryItOut] = useState(false);
   const [resetKey, setResetKey] = useState(0);
@@ -151,6 +152,7 @@ const RouteCard: React.FC<Props> = ({ route, bearerToken, index = 0 }) => {
             key={resetKey}
             route={route}
             bearerToken={bearerToken}
+            baseUrl={baseUrl}
             isTryItOut={isTryItOut}
             onCancel={handleCancel}
           />

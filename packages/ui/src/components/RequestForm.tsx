@@ -4,6 +4,7 @@ import { InternalRoute, fillPathParams } from '../utils/api';
 interface RequestFormProps {
   route: InternalRoute;
   bearerToken?: string;
+  baseUrl?: string;
   isTryItOut?: boolean;
   onCancel?: () => void;
 }
@@ -76,6 +77,7 @@ const getDurationColor = (ms: number): string => {
 const RequestForm: React.FC<RequestFormProps> = ({
   route,
   bearerToken,
+  baseUrl,
   isTryItOut = false,
   onCancel,
 }) => {
@@ -123,7 +125,8 @@ const RequestForm: React.FC<RequestFormProps> = ({
 
   const buildUrl = () => {
     const filledPath = fillPathParams(route.path, pathParams);
-    const url = new URL(filledPath, window.location.origin);
+    const targetBase = baseUrl || window.location.origin;
+    const url = new URL(filledPath, targetBase);
     queryParams.forEach(({ key, value }) => {
       if (key) url.searchParams.append(key, value);
     });

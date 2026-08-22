@@ -2,7 +2,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import type { Express, Request, Response, NextFunction } from "express";
-import { scanRoutes } from "@routeui/core";
+import { scanRoutes, toOpenApi } from "@routeui/core";
 
 function getRequire() {
   try {
@@ -83,6 +83,33 @@ export function routeui(app: Express, options?: RouteUIOptions) {
         } catch {}
       }
       return res.send(JSON.stringify({ version }));
+    }
+
+    // Handle OpenAPI 3.0 JSON spec export
+    if (currentPath === "/__routeui/openapi.json") {
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader("Content-Disposition", 'inline; filename="openapi.json"');
+      const routes = scanRoutes(app);
+      let version = "0.1.0";
+      try {
+        const reqFunc = getRequire();
+        const pkgPath = reqFunc.resolve("@routeui/express/package.json");
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+        if (pkg && pkg.version) version = pkg.version;
+      } catch {
+        try {
+          const pkgPath = path.resolve(process.cwd(), "node_modules/@routeui/express/package.json");
+          if (fs.existsSync(pkgPath)) {
+            const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+            if (pkg && pkg.version) version = pkg.version;
+          }
+        } catch {}
+      }
+      const openApiDoc = toOpenApi(routes, {
+        title: options?.title ?? "API Documentation",
+        version,
+      });
+      return res.send(JSON.stringify(openApiDoc, null, 2));
     }
 
     // Serve HTML documentation interface

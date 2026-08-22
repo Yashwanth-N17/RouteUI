@@ -45,6 +45,35 @@ describe("@routeui/express middleware", () => {
     expect(jsonSent.version).toBe("0.1.0");
   });
 
+  it("should handle /__routeui/openapi.json and return OpenAPI 3.0 document", () => {
+    const app = express();
+    app.get("/api/users", (req, res) => res.json([]));
+
+    const middleware = routeui(app, { title: "Custom API Docs" });
+    let jsonSent: any = null;
+    let contentTypeHeader: string | null = null;
+
+    const req = { path: "/__routeui/openapi.json" } as any;
+    const res = {
+      setHeader: (name: string, value: string) => {
+        if (name.toLowerCase() === "content-type") {
+          contentTypeHeader = value;
+        }
+      },
+      send: (data: string) => {
+        jsonSent = JSON.parse(data);
+      },
+    } as any;
+
+    middleware(req, res, () => {});
+    expect(contentTypeHeader).toBe("application/json");
+    expect(jsonSent).toBeDefined();
+    expect(jsonSent.openapi).toBe("3.0.0");
+    expect(jsonSent.info.title).toBe("Custom API Docs");
+    expect(jsonSent.paths["/api/users"]).toBeDefined();
+    expect(jsonSent.paths["/api/users"].get).toBeDefined();
+  });
+
   it("should not intercept user routes /routes or /meta", () => {
     const app = express();
     const middleware = routeui(app);
@@ -59,7 +88,6 @@ describe("@routeui/express middleware", () => {
     middleware(reqRoutes, resRoutes, () => {
       nextCalled = true;
     });
-    // For GET on unmatched sub-paths, if uiHtml is not loaded it will respond 500, but for routes/meta endpoints it strictly checks /__routeui/routes and /__routeui/meta
   });
 
   it("should handle missing uiHtml gracefully with 500 status", () => {
@@ -81,7 +109,6 @@ describe("@routeui/express middleware", () => {
     };
 
     middleware(req, res, () => {});
-    // When uiHtml is missing or present, it returns HTML response
     if (statusCode !== null) {
       expect(statusCode).toBe(500);
       expect(bodySent).toContain("RouteUI UI Bundle Missing");
