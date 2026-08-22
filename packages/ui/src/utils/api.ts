@@ -3,6 +3,9 @@ export interface InternalRoute {
   path: string;
   handlers: string[];
   middleware: string[];
+  description?: string;
+  tags?: string[];
+  deprecated?: boolean;
 }
 
 /**

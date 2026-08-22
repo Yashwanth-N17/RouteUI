@@ -34,12 +34,18 @@ const App: React.FC = () => {
     sessionStorage.removeItem(TOKEN_KEY);
   };
 
+  const getEndpointUrl = (endpoint: string) => {
+    const pathname = window.location.pathname;
+    const basePath = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+    return `${basePath}${endpoint}`;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch version
         try {
-          const metaRes = await fetch('/__routeui/meta');
+          const metaRes = await fetch(getEndpointUrl('/__routeui/meta'));
           if (metaRes.ok) {
             const metaData = await metaRes.json();
             if (metaData.version) setVersion(metaData.version);
@@ -47,7 +53,7 @@ const App: React.FC = () => {
         } catch {}
 
         // Fetch routes
-        const res = await fetch('/__routeui/routes');
+        const res = await fetch(getEndpointUrl('/__routeui/routes'));
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const contentType = res.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
@@ -295,7 +301,7 @@ const App: React.FC = () => {
                   </div>
                   <div className="flex flex-col space-y-3.5">
                     {groupRoutes.map((route, idx) => (
-                      <RouteCard key={idx} index={idx} route={route} bearerToken={bearerToken} />
+                      <RouteCard key={`${route.method}-${route.path}`} index={idx} route={route} bearerToken={bearerToken} />
                     ))}
                   </div>
                 </section>

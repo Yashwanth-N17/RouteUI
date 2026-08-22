@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build UI package
+        run: pnpm --filter @routeui/ui build
+
       - name: Build workspace
         run: pnpm build
 

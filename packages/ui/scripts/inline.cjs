@@ -21,12 +21,12 @@ html = html.replace(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"[^>]*\/?>/g, (
   return match;
 });
 
-// Inline JS modules (type="module")
-html = html.replace(/<script type="module" src="([^\"]+)"><\/script>/g, (match, src) => {
+// Inline JS modules (keep type="module" so execution occurs after DOM parsing)
+html = html.replace(/<script[^>]*type="module"[^>]*src="([^"]+)"[^>]*><\/script>/g, (match, src) => {
   const jsPath = path.join(distDir, src);
   if (fs.existsSync(jsPath)) {
     const js = fs.readFileSync(jsPath, 'utf8');
-    return `<script>${js}</script>`;
+    return `<script type="module">${js}</script>`;
   }
   return match;
 });
