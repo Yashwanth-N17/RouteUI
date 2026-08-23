@@ -39,15 +39,19 @@ interface HistoryEntry {
  * Response headers and non-body text are rendered safely as standard React child nodes.
  */
 const colorizeJson = (jsonString: string) => {
+  // Escape HTML entities BEFORE applying any span markup to prevent XSS.
+  // Order matters: & must be first so it doesn't double-escape the others.
+  // " is escaped to prevent attribute-injection in edge-case server responses.
   const escaped = jsonString
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
   return escaped.replace(
-    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+    /(&quot;(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\&])*&quot;(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
     (match) => {
       let cls = 'text-amber-400'; // number
-      if (/^"/.test(match)) {
+      if (/^&quot;/.test(match)) {
         if (/:$/.test(match)) {
           cls = 'text-blue-400 font-semibold'; // key
         } else {
@@ -523,6 +527,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   <span className="table-cell select-none text-right pr-4 text-gray-600 text-[11px] w-8">
                     {idx + 1}
                   </span>
+                  {/* Safe: colorizeJson pre-escapes &, <, >, " before injecting <span> tags. */}
                   <span
                     className="table-cell whitespace-pre text-gray-200"
                     dangerouslySetInnerHTML={{ __html: colorizeJson(line) }}
@@ -626,6 +631,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                               <span className="table-cell select-none text-right pr-3 text-gray-600 text-[10px] w-6">
                                 {idx + 1}
                               </span>
+                              {/* Safe: colorizeJson pre-escapes &, <, >, " before injecting <span> tags. */}
                               <span
                                 className="table-cell whitespace-pre text-gray-200"
                                 dangerouslySetInnerHTML={{ __html: colorizeJson(line) }}

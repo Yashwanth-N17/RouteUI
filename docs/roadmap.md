@@ -9,14 +9,14 @@ The roadmap is divided into milestones based on feature capabilities rather than
 # Current Milestone Status
 
 ```text
-Phase 1 — Core Engine                ✅ Completed
-Phase 2 — Router Capabilities        ✅ Completed
-Phase 3 — CLI Inspection Tool        ✅ Completed
-Phase 4 — Documentation              ✅ Completed
-Phase 5 — Interactive UI Explorer    📋 Next Milestone
-Phase 6 — Schema & Exporters         📋 Planned
-Phase 7 — Multi-Framework Adapters   📋 Planned
-Phase 8 — Ecosystem & Extensions     💡 Future
+Phase 1 — Core Engine                Completed
+Phase 2 — Router Capabilities        Completed
+Phase 3 — CLI Inspection Tool        Completed
+Phase 4 — Documentation              Completed
+Phase 5 — Interactive UI Explorer    Completed
+Phase 6 — Schema & Exporters         Completed (OpenAPI 3.0)
+Phase 7 — Multi-Framework Adapters   Planned
+Phase 8 — Ecosystem & Extensions     Future
 ```
 
 ---
@@ -91,37 +91,45 @@ Phase 8 — Ecosystem & Extensions     💡 Future
 
 ## Milestone 5 — Interactive UI Explorer
 
-**Status:** 📋 Planned (Next Milestone)
+**Status:** Completed
 
-### Goals
+### Features
 
-- Embedded React documentation single-page application (SPA)
-- Express middleware helper: `app.use('/docs', routeui(app))`
-- Interactive endpoint documentation interface inspired by FastAPI's `/docs`
-- Endpoint request builder & interactive "Try it out" execution
-- Syntax-highlighted request and response body viewer
-- Full-text endpoint search, filter by HTTP method, and category tags
-- Dark / Light visual theme toggle
+- [x] Embedded React documentation single-page application (SPA)
+- [x] Express middleware helper: `app.use('/docs', routeui(app))`
+- [x] Interactive endpoint documentation interface
+- [x] Endpoint request builder and interactive "Try it out" execution
+- [x] Syntax-highlighted request and response body viewer
+- [x] Full-text endpoint search, filter by HTTP method
+- [x] Bearer token authentication in the UI
+- [x] Dark and light visual theme toggle
+- [x] Response time and status code display
+- [x] cURL command export
+- [x] Request history panel
+- [x] Deprecation badge UI
 
 ---
 
 ## Milestone 6 — Schema Extraction & Exporters
 
-**Status:** 📋 Planned
+**Status:** Completed (OpenAPI 3.0)
 
-### Goals
+### Features
 
-- OpenAPI 3.1 specification auto-generator
-- Postman Collection v2.1 export endpoint
-- JSON / Markdown static documentation file exporters
-- Infer request body schemas from Express `body-parser` or validation middleware
-- Infer query & path parameter type metadata
+- [x] OpenAPI 3.0 specification export from the UI
+
+### Planned
+
+- Postman Collection v2.1 export
+- JSON and Markdown static documentation exporters
+- Request body schema inference from Express validation middleware
+- Query and path parameter type metadata
 
 ---
 
 ## Milestone 7 — Multi-Framework Adapters
 
-**Status:** 📋 Planned
+**Status:** Planned
 
 ### Goals
 
@@ -134,7 +142,7 @@ Phase 8 — Ecosystem & Extensions     💡 Future
 
 ## Milestone 8 — Ecosystem & Extensions
 
-**Status:** 💡 Future
+**Status:** Future
 
 ### Ideas
 

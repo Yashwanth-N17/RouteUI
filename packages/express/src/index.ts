@@ -19,6 +19,16 @@ export interface RouteUIOptions {
    * @default "RouteUI Docs"
    */
   title?: string;
+  /**
+   * Explicitly enable or disable the RouteUI middleware.
+   * Defaults to `true` in development and `false` in production
+   * (i.e. when `process.env.NODE_ENV === 'production'`).
+   *
+   * Always set this to `false` (or omit the middleware entirely) in production
+   * unless the mount path is protected by authentication middleware, because the
+   * route listing and OpenAPI export expose your full API surface area.
+   */
+  enabled?: boolean;
 }
 
 /**
@@ -30,7 +40,23 @@ export interface RouteUIOptions {
  * app.use("/docs", routeui(app));
  * ```
  */
+/**
+ * Sets baseline security headers on every RouteUI response.
+ * - `X-Content-Type-Options: nosniff`  — prevents MIME-type sniffing.
+ * - `X-Frame-Options: DENY`            — prevents clickjacking via iframes.
+ * - `Referrer-Policy: no-referrer`     — stops referrer leakage.
+ */
+function setSecurityHeaders(res: Response): void {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+}
+
 export function routeui(app: Express, options?: RouteUIOptions) {
+  // Default: enabled in development, disabled in production.
+  // Pass `enabled: true` to override (e.g. behind auth middleware).
+  const isEnabled = options?.enabled ?? process.env.NODE_ENV !== 'production';
+
   let uiHtml = "";
 
   // Attempt to resolve static UI bundle from @routeui/ui
@@ -45,7 +71,6 @@ export function routeui(app: Express, options?: RouteUIOptions) {
       path.resolve(process.cwd(), "node_modules/@routeui/ui/dist/index.html"),
       path.resolve(process.cwd(), "packages/ui/dist/index.html"),
       path.resolve(process.cwd(), "../../packages/ui/dist/index.html"),
-      path.resolve(process.cwd(), "../../RouteUI/packages/ui/dist/index.html"),
     ];
     for (const p of possiblePaths) {
       if (fs.existsSync(p)) {
@@ -56,16 +81,21 @@ export function routeui(app: Express, options?: RouteUIOptions) {
   }
 
   return (req: Request, res: Response, next: NextFunction) => {
+    // Silent pass-through when disabled (e.g. in production without explicit opt-in).
+    if (!isEnabled) return next();
+
     const currentPath = req.path || req.url;
 
     // Handle metadata routes JSON request
     if (currentPath === "/__routeui/routes") {
+      setSecurityHeaders(res);
       res.setHeader("Content-Type", "application/json");
       return res.send(JSON.stringify(scanRoutes(app)));
     }
 
     // Handle metadata info JSON request (version)
     if (currentPath === "/__routeui/meta") {
+      setSecurityHeaders(res);
       res.setHeader("Content-Type", "application/json");
       let version = "0.1.0";
       try {
@@ -87,6 +117,7 @@ export function routeui(app: Express, options?: RouteUIOptions) {
 
     // Handle OpenAPI 3.0 JSON spec export
     if (currentPath === "/__routeui/openapi.json") {
+      setSecurityHeaders(res);
       res.setHeader("Content-Type", "application/json");
       res.setHeader("Content-Disposition", 'inline; filename="openapi.json"');
       const routes = scanRoutes(app);
@@ -114,6 +145,13 @@ export function routeui(app: Express, options?: RouteUIOptions) {
 
     // Serve HTML documentation interface
     if (req.method === "GET") {
+      setSecurityHeaders(res);
+      // CSP: the UI bundle is fully self-contained (no external scripts/styles);
+      // 'unsafe-inline' is required because all JS and CSS are inlined at build time.
+      res.setHeader(
+        'Content-Security-Policy',
+        "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:"
+      );
       if (uiHtml) {
         res.setHeader("Content-Type", "text/html; charset=utf-8");
         return res.send(uiHtml);

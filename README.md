@@ -8,11 +8,15 @@ Build interactive API documentation directly from your Express application at ru
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6.svg)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-18%2B%20%7C%2022%2B-339933.svg)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-22%2B-339933.svg)](https://nodejs.org/)
 [![CI](https://img.shields.io/github/actions/workflow/status/Yashwanth-N17/RouteUI/ci.yml?branch=main&label=CI)](https://github.com/Yashwanth-N17/RouteUI/actions)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![npm @routeui/core](https://img.shields.io/npm/v/@routeui/core?label=%40routeui%2Fcore)](https://www.npmjs.com/package/@routeui/core)
+[![npm @routeui/cli](https://img.shields.io/npm/v/@routeui/cli?label=%40routeui%2Fcli)](https://www.npmjs.com/package/@routeui/cli)
+[![npm @routeui/express](https://img.shields.io/npm/v/@routeui/express?label=%40routeui%2Fexpress)](https://www.npmjs.com/package/@routeui/express)
+[![npm @routeui/ui](https://img.shields.io/npm/v/@routeui/ui?label=%40routeui%2Fui)](https://www.npmjs.com/package/@routeui/ui)
 
-> 🚧 **Status:** Early Development (v0.1.0) — Core Engine & CLI Ready
+> **Status:** v0.1.0 — First public release. All four packages are published and ready to use.
 
 </div>
 
@@ -33,14 +37,20 @@ RouteUI eliminates this friction by **discovering routes directly from your Expr
 
 ## Features
 
-- ⚡ **Zero Configuration** — Scan any existing Express app without modifying route definitions.
-- 🔍 **Runtime Route Discovery** — Inspect internal Express router stacks directly at application runtime.
-- 🌲 **Deep Nested Router Support** — Recursively traverses multi-level nested routers (`app.use('/api', router)`).
-- 🏷️ **Route Parameter Detection** — Automatically extracts path variables (e.g. `/users/:userId/posts/:postId`).
-- 🔀 **Multi-Path Array Support** — Handles array-based path definitions (e.g. `app.get(['/home', '/dashboard'], ...)`).
-- 🛠️ **CLI Inspection Tool** — Command-line utility (`@routeui/cli`) to scan entry files and inspect endpoints.
-- 🧩 **Middleware & Handler Tracking** — Inspects handler names and middleware attached to each route.
-- 📦 **TypeScript & ESM Ready** — Built with TypeScript, shipping dual ESM and CommonJS exports.
+- **Zero Configuration** — Scan any existing Express app without modifying route definitions.
+- **Runtime Route Discovery** — Inspects internal Express router stacks directly at application runtime.
+- **Interactive Documentation UI** — Mount a full API explorer at any path: `app.use('/docs', routeui(app))`.
+- **Deep Nested Router Support** — Recursively traverses multi-level nested routers.
+- **Route Parameter Detection** — Automatically extracts path variables (e.g. `/users/:userId/posts/:postId`).
+- **Multi-Path Array Support** — Handles array-based path definitions (e.g. `app.get(['/home', '/dashboard'], ...)`).
+- **Bearer Token Authentication** — Pass tokens directly in the UI for authenticated endpoint testing.
+- **OpenAPI 3.0 Export** — Download an OpenAPI spec from the UI with one click.
+- **Dark and Light Theme** — Toggle between dark and light modes in the UI.
+- **CLI Inspection Tool** — Command-line utility (`@routeui/cli`) to scan entry files and inspect endpoints.
+- **Middleware and Handler Tracking** — Inspects handler names and middleware attached to each route.
+- **Mounted Sub-Application Support** — Use `autoRegister(express)` or `registerSubApp(subApp)` to traverse child Express instances.
+- **TypeScript and ESM Ready** — Built with TypeScript, shipping dual ESM and CommonJS exports.
+- **Production Safe by Default** — Middleware is automatically disabled when `NODE_ENV=production`.
 
 ---
 
@@ -48,26 +58,54 @@ RouteUI eliminates this friction by **discovering routes directly from your Expr
 
 This repository is managed as a **pnpm workspace monorepo**:
 
-| Package                          | Version | Description                                                 |
-| :------------------------------- | :------ | :---------------------------------------------------------- |
-| [`@routeui/core`](packages/core) | `0.1.0` | Core runtime scanner and Express adapter engine             |
-| [`@routeui/cli`](packages/cli)   | `0.1.0` | Command-line interface for route scanning and visualization |
+| Package                                    | Version | Description                                                         |
+| :----------------------------------------- | :------ | :------------------------------------------------------------------ |
+| [`@routeui/core`](packages/core)           | `0.1.0` | Core runtime scanner and Express adapter engine                     |
+| [`@routeui/express`](packages/express)     | `0.1.0` | Express middleware — mounts the interactive docs UI in one line     |
+| [`@routeui/ui`](packages/ui)               | `0.1.0` | React SPA bundle served by `@routeui/express`                       |
+| [`@routeui/cli`](packages/cli)             | `0.1.0` | Command-line interface for route scanning and visualization         |
 
 ---
 
 ## Quick Start
 
-### 1. Programmatic Scanning (`@routeui/core`)
+### 1. Interactive Docs Middleware (`@routeui/express`)
 
-Install the core package in your project:
+This is the primary way to use RouteUI. Install and mount in one line:
+
+```bash
+pnpm add @routeui/express
+# or
+npm install @routeui/express
+```
+
+```ts
+import express from 'express';
+import { routeui } from '@routeui/express';
+
+const app = express();
+
+app.get('/users', (req, res) => res.json([]));
+app.post('/users', (req, res) => res.json({ status: 'created' }));
+
+// Mount the interactive docs UI
+app.use('/docs', routeui(app));
+
+app.listen(3000);
+// Visit http://localhost:3000/docs
+```
+
+> **Note:** The middleware is automatically disabled when `NODE_ENV=production`. Pass `{ enabled: true }` to override behind authentication middleware.
+
+---
+
+### 2. Programmatic Scanning (`@routeui/core`)
 
 ```bash
 pnpm add @routeui/core express
 # or
 npm install @routeui/core express
 ```
-
-Use `scanRoutes` to inspect your Express app:
 
 ```typescript
 import express from "express";
@@ -85,29 +123,18 @@ app.post("/api/v1/users", (req, res) => {
 
 // Discover all registered routes
 const routes = scanRoutes(app);
-
 console.log(routes);
 /*
 [
-  {
-    method: 'GET',
-    path: '/api/v1/health',
-    handlers: [ '<anonymous>' ],
-    middleware: []
-  },
-  {
-    method: 'POST',
-    path: '/api/v1/users',
-    handlers: [ '<anonymous>' ],
-    middleware: []
-  }
+  { method: 'GET',  path: '/api/v1/health', handlers: ['<anonymous>'], middleware: [] },
+  { method: 'POST', path: '/api/v1/users',  handlers: ['<anonymous>'], middleware: [] }
 ]
 */
 ```
 
 ---
 
-### 2. Command Line Interface (`@routeui/cli`)
+### 3. Command Line Interface (`@routeui/cli`)
 
 Run the CLI tool directly using `npx` or `pnpm dlx`:
 
@@ -177,10 +204,13 @@ RouteUI/
 │   └── multiple-routers/
 │
 ├── packages/
-│   ├── core/                # @routeui/core runtime scanner
-│   └── cli/                 # @routeui/cli command line scanner
+│   ├── core/                # @routeui/core  — runtime scanner
+│   ├── express/             # @routeui/express — Express middleware
+│   ├── ui/                  # @routeui/ui — React SPA bundle
+│   └── cli/                 # @routeui/cli — CLI tool
 │
 ├── CONTRIBUTING.md          # Developer onboarding & guidelines
+├── SECURITY.md              # Security policy & responsible disclosure
 ├── README.md                # Project overview
 └── pnpm-workspace.yaml      # Monorepo configuration
 ```
@@ -205,44 +235,37 @@ InternalRoute[] Model
         │
   ┌─────┴────────────────┐
   ▼                      ▼
-CLI Output      Interactive UI (Planned)
+CLI Output       Interactive UI (/docs)
 ```
 
 For a deep dive into the design decisions and Express router stack traversal, check out [docs/architecture.md](docs/architecture.md) and [docs/runtime-scanner.md](docs/runtime-scanner.md).
 
 ---
 
-## Known Limitations
+## Sub-Application Support
 
-### Mounted Sub-applications
+Routes registered on **mounted Express sub-applications** require one extra setup call:
 
-Routes registered on **mounted Express sub-applications** cannot be detected:
+```ts
+import express from 'express';
+import { autoRegister, scanRoutes } from '@routeui/core';
 
-```js
-const subApp = express()         // ← sub-application
-subApp.get('/health', handler)
-app.use('/api', subApp)          // ← RouteUI cannot see /api/health ❌
+// Call once before creating any sub-apps
+autoRegister(express);
+
+const app = express();
+const subApp = express();
+
+subApp.get('/health', (req, res) => res.send('OK'));
+app.use('/api', subApp);
+
+// RouteUI now detects GET /api/health
+const routes = scanRoutes(app);
 ```
 
-This is a JavaScript closure limitation. Express stores the sub-app inside a
-closure when mounting it — that reference is not accessible as any property on
-the layer at runtime.
+Alternatively, use `registerSubApp(subApp)` per sub-application. See [ADR 0005](docs/decisions/0005-mounted-subapp-limitation.md) for the full technical details.
 
-**Workaround:** Use `express.Router()` instead. It works identically for route
-grouping and is fully supported:
-
-```js
-const router = express.Router()  // ← use Router, not express()
-router.get('/health', handler)
-app.use('/api', router)          // ← RouteUI detects this ✅
-```
-
-`express.Router()` is the recommended Express pattern for grouping routes.
-Sub-applications (`express()`) are intended for entirely separate Express
-instances with different settings — a much rarer use case.
-
-Instrumentation-based support for sub-apps is planned for **v0.2.0**.  
-See [ADR 0005](docs/decisions/0005-mounted-subapp-limitation.md) for the full technical analysis.
+If you do not call either helper, un-registered sub-apps are gracefully skipped without error. Standard `express.Router()` instances are always detected automatically and require no extra setup.
 
 ---
 
@@ -252,8 +275,8 @@ See [ADR 0005](docs/decisions/0005-mounted-subapp-limitation.md) for the full te
 - [x] **Phase 2: Router Capabilities** — Recursive nested router traversal, route parameters, multi-path arrays.
 - [x] **Phase 3: CLI Tool** — CLI scanner (`@routeui/cli`), dynamic application loading, formatted tabular output.
 - [x] **Phase 4: Documentation** — Installation guide, CLI reference, examples index, roadmap, contributing guide.
-- [ ] **Phase 5: Interactive UI Explorer** — Embedded React documentation interface at `/docs`.
-- [ ] **Phase 6: Schema & Exporters** — OpenAPI 3.1 exporter & Postman collection exporter.
+- [x] **Phase 5: Interactive UI Explorer** — Embedded React documentation interface, request builder, dark mode, bearer auth, cURL export.
+- [x] **Phase 6: Schema & Exporters** — OpenAPI 3.0 export from the interactive UI.
 - [ ] **Phase 7: Multi-Framework Adapters** — Fastify & Hono support.
 
 View the full [Roadmap Document](docs/roadmap.md).

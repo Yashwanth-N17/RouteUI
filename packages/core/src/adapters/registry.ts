@@ -16,7 +16,15 @@ export function registerSubApp(
   });
 }
 
-// Automatically register all sub-apps globally by patching Express
+/**
+ * Automatically register all sub-apps by patching `express.application.use`.
+ *
+ * @warning This mutates `expressModule.application.use` — the prototype shared by
+ * every Express application in the same Node.js process. If multiple Express apps
+ * coexist in the same process (e.g. in tests or a multi-tenant setup), the patch
+ * applies to all of them. The Symbol guard prevents double-patching but does not
+ * scope the behaviour per-app.
+ */
 export function autoRegister(expressModule: any): void {
   if (!expressModule?.application?.use || (expressModule as any)[patched]) {
     return;

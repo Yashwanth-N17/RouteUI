@@ -19,7 +19,7 @@ Before installing RouteUI, ensure your environment meets the following requireme
 
 ## Installing Workspace Packages
 
-RouteUI is modularized into dedicated packages:
+RouteUI is modularized into four packages:
 
 ### 1. `@routeui/core`
 
@@ -36,7 +36,48 @@ npm install @routeui/core
 yarn add @routeui/core
 ```
 
-### 2. `@routeui/cli`
+### 2. `@routeui/express`
+
+Express middleware that mounts the interactive documentation UI in one line. This is the primary package for most users.
+
+```bash
+# Using pnpm
+pnpm add @routeui/express
+
+# Using npm
+npm install @routeui/express
+
+# Using yarn
+yarn add @routeui/express
+```
+
+Usage:
+
+```ts
+import express from 'express';
+import { routeui } from '@routeui/express';
+
+const app = express();
+
+app.get('/users', (req, res) => res.json([]));
+app.post('/users', (req, res) => res.json({ status: 'created' }));
+
+// Mount the interactive docs UI at /docs
+app.use('/docs', routeui(app));
+
+app.listen(3000, () => console.log('Listening on http://localhost:3000'));
+// Visit http://localhost:3000/docs
+```
+
+### 3. `@routeui/ui`
+
+The React SPA bundle. This package is bundled automatically by `@routeui/express` and does not usually need to be installed directly.
+
+```bash
+pnpm add @routeui/ui
+```
+
+### 4. `@routeui/cli`
 
 The command-line tool used to scan Express entry files and format endpoint output in the terminal.
 
@@ -134,7 +175,7 @@ If you are contributing to RouteUI or building locally inside a monorepo workspa
    pnpm install
    ```
 
-3. Build all workspace packages (`@routeui/core`, `@routeui/cli`):
+3. Build all workspace packages:
 
    ```bash
    pnpm build

@@ -4,6 +4,9 @@
   "description": "Express middleware for RouteUI interactive API documentation explorer",
   "license": "MIT",
   "author": "Yashwanth N",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Yashwanth-N17/RouteUI.git"

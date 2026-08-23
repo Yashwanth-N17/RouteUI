@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { InternalRoute } from './utils/api';
 import RouteCard from './components/RouteCard';
 import AuthModal from './components/AuthModal';
+import { LockClosedIcon, LockOpenIcon, SunIcon, MoonIcon, ServerStackIcon } from '@heroicons/react/24/outline';
 
 const TOKEN_KEY = 'routeui_bearer_token';
 const BASE_URL_KEY = 'routeui_base_url';
@@ -33,6 +34,10 @@ const App: React.FC = () => {
   const handleSaveToken = (newToken: string) => {
     setBearerToken(newToken);
     if (newToken) {
+      // Bearer token stored in sessionStorage (clears automatically on tab close).
+      // sessionStorage is accessible to any JS on the same origin — acceptable for a
+      // local dev tool running on localhost. Do NOT use RouteUI in production without
+      // authentication middleware protecting the /docs mount path.
       sessionStorage.setItem(TOKEN_KEY, newToken);
     } else {
       sessionStorage.removeItem(TOKEN_KEY);
@@ -163,11 +168,7 @@ const App: React.FC = () => {
       <header className="h-16 h-16-override sticky top-0 z-40 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between border-b border-gray-200/80 dark:border-[#1f1f1f]">
         <div className="flex items-center space-x-3.5">
           <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <circle cx="5" cy="12" r="2.5" fill="currentColor" />
-              <circle cx="19" cy="12" r="2.5" fill="currentColor" />
-              <path d="M7.5 12C11 12 13 6 16.5 12" strokeLinecap="round" />
-            </svg>
+            <ServerStackIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-label="RouteUI" />
           </div>
           <div className="flex items-center space-x-2">
             <h1 className="text-base font-bold tracking-tight text-gray-900 dark:text-gray-100">
@@ -207,7 +208,10 @@ const App: React.FC = () => {
                 : 'bg-gray-100 dark:bg-[#161616] hover:bg-gray-200 dark:hover:bg-[#1f1f1f] text-gray-700 dark:text-gray-300 border-gray-200/80 dark:border-[#1f1f1f]'
             }`}
           >
-            <span>{bearerToken ? 'Authorized 🔓' : 'Authorize 🔒'}</span>
+            <span className="flex items-center space-x-1">
+  {bearerToken ? <LockOpenIcon className="w-4 h-4" aria-label="Authorized" /> : <LockClosedIcon className="w-4 h-4" aria-label="Authorize" />}
+  {bearerToken ? 'Authorized' : 'Authorize'}
+</span>
           </button>
 
           <button
@@ -225,7 +229,7 @@ const App: React.FC = () => {
             className="p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#161616] border border-transparent dark:border-[#1f1f1f] transition-colors"
             aria-label="Toggle theme"
           >
-            {isDark ? '🌙' : '☀️'}
+            {isDark ? <MoonIcon className="w-5 h-5" /> : <SunIcon className="w-5 h-5" />}
           </button>
         </div>
       </header>

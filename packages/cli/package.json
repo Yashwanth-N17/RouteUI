@@ -4,6 +4,9 @@
   "description": "CLI scanner for Express.js routes",
   "license": "MIT",
   "author": "Yashwanth N",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Yashwanth-N17/RouteUI.git"

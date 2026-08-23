@@ -10,45 +10,64 @@ The project follows a **pnpm workspace monorepo** architecture so multiple packa
 
 ```text
 RouteUI/
-│
-├── .github/
-│   └── workflows/
-│       └── ci.yml
-│
-├── docs/
-│   ├── architecture.md
-│   ├── project-structure.md
-│   ├── runtime-scanner.md
-│   ├── roadmap.md
-│   ├── development.md
-│   ├── testing.md
-│   └── decisions/
-│
-├── examples/
-│   ├── basic/
-│   ├── nested/
-│   ├── middleware/
-│   ├── params/
-│   ├── arrays/
-│   └── multiple-routers/
-│
-├── packages/
-│   └── core/
-│       ├── src/
-│       ├── tests/
-│       ├── dist/
-│       ├── package.json
-│       └── tsup.config.ts
-│
-├── .prettierrc
-├── package.json
-├── pnpm-lock.yaml
-├── pnpm-workspace.yaml
-├── tsconfig.json
-├── README.md
-├── CHANGELOG.md
-├── CONTRIBUTING.md
-└── LICENSE
+|
+|-- .github/
+|   `-- workflows/
+|       |-- ci.yml
+|       `-- publish.yml
+|
+|-- docs/
+|   |-- architecture.md
+|   |-- cli.md
+|   |-- examples.md
+|   |-- installation.md
+|   |-- project-structure.md
+|   |-- roadmap.md
+|   |-- runtime-scanner.md
+|   `-- decisions/
+|
+|-- examples/
+|   |-- basic/
+|   |-- nested/
+|   |-- middleware/
+|   |-- params/
+|   |-- arrays/
+|   `-- multiple-routers/
+|
+|-- packages/
+|   |-- core/
+|   |   |-- src/
+|   |   |-- tests/
+|   |   |-- dist/
+|   |   |-- package.json
+|   |   `-- tsup.config.ts
+|   |
+|   |-- express/
+|   |   |-- src/
+|   |   |-- dist/
+|   |   `-- package.json
+|   |
+|   |-- ui/
+|   |   |-- src/
+|   |   |-- dist/
+|   |   `-- package.json
+|   |
+|   `-- cli/
+|       |-- src/
+|       |-- dist/
+|       `-- package.json
+|
+|-- .prettierrc
+|-- package.json
+|-- pnpm-lock.yaml
+|-- pnpm-workspace.yaml
+|-- tsconfig.json
+|-- CHANGELOG.md
+|-- CODE_OF_CONDUCT.md
+|-- CONTRIBUTING.md
+|-- LICENSE
+|-- README.md
+`-- SECURITY.md
 ```
 
 ---
@@ -103,28 +122,19 @@ Having one root configuration ensures consistent compiler behavior across the re
 
 # packages/
 
-This directory contains the publishable packages.
+This directory contains the four publishable packages.
 
 Current structure:
 
 ```text
 packages/
-└── core/
+|-- core/      Runtime scanner and Express adapter
+|-- express/   Express middleware
+|-- ui/        React SPA bundle
+`-- cli/       Command-line interface
 ```
 
-Future structure:
-
-```text
-packages/
-├── core/
-├── ui/
-├── openapi/
-├── cli/
-├── fastify/
-└── hono/
-```
-
-Each package has a single responsibility.
+Each package has a single responsibility and is independently publishable to npm.
 
 ---
 
@@ -317,17 +327,16 @@ Examples are **not** part of the published package.
 
 Contains project documentation.
 
-Current documents include:
+Current documents:
 
-- Project Structure
-- Runtime Scanner
-- Architecture
-- Roadmap
-- Development Guide
-- Testing Guide
-- Architecture Decision Records (ADRs)
-
-These documents explain how RouteUI is designed and maintained.
+- `architecture.md` — system design and component responsibilities
+- `cli.md` — CLI usage guide
+- `examples.md` — guide for all 6 example applications
+- `installation.md` — setup guide for all package managers and TypeScript
+- `project-structure.md` — repository layout reference (this file)
+- `roadmap.md` — milestone and feature tracking
+- `runtime-scanner.md` — internal scanner design and Express internals
+- `decisions/` — Architecture Decision Records (ADRs)
 
 ---
 

@@ -313,36 +313,34 @@ Every new scanner feature should begin with a failing test before implementation
 
 ---
 
+# Current Capabilities
+
+The runtime scanner supports:
+
+- Direct routes on `app` and `express.Router()`
+- HTTP method detection
+- Internal route conversion to `InternalRoute[]`
+- Nested routers and deeply nested routers (recursive traversal)
+- Multiple path definitions per route (array paths)
+- Route parameter detection (`/users/:id`, optional params, wildcards)
+- Middleware and handler name extraction
+- Mounted Express sub-applications via `autoRegister(express)` or `registerSubApp(subApp)`
+
 # Current Limitations
 
-Current implementation supports:
-
-- Direct routes
-- HTTP method detection
-- Internal route conversion
-- Nested routers and deeply nested routers (recursive traversal)
-- Multiple path definitions per route
-- Route parameter detection
-
-Current limitations:
-
-- Mounted express applications (e.g. `app.use('/admin', adminApp)`)
-- Middleware detection
-- Route metadata extraction
-
-These features are currently under active development.
+- Request and response body schema inference
+- Authentication provider detection
+- Runtime schema discovery from validation middleware
 
 ---
 
 # Future Improvements
 
-The runtime scanner will continue to evolve with support for:
+The runtime scanner will continue to evolve:
 
-- Mounted express applications traversal
-- Middleware analysis
-- Authentication detection
 - Request and response schema discovery
-- Framework-independent scanning engine
+- Authentication detection
+- Framework-independent scanning engine (Fastify, Hono adapters)
 
 ---
 

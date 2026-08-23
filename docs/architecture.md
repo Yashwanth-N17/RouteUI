@@ -50,15 +50,10 @@ RouteUI is built around the following principles:
 ```text
 RouteUI/
 ├── packages/
-│   └── core/
-│       ├── src/
-│       │   ├── adapters/
-│       │   ├── models/
-│       │   ├── types/
-│       │   ├── utils/
-│       │   └── index.ts
-│       │
-│       └── tests/
+│   ├── core/          # Runtime scanner & Express adapter
+│   ├── express/       # Express middleware (@routeui/express)
+│   ├── ui/            # React SPA bundle (@routeui/ui)
+│   └── cli/           # CLI tool (@routeui/cli)
 │
 ├── examples/
 │   ├── basic/
@@ -97,17 +92,12 @@ The scanner traverses Express routing structures and extracts route metadata.
 
 Responsibilities:
 
-- Traverse routing stacks
+- Traverse routing stacks recursively (including deeply nested routers)
 - Detect HTTP methods
-- Extract paths
+- Extract paths and route parameters
 - Build internal route objects
-
-Future versions will support:
-
-- Nested routers
-- Middleware detection
-- Route metadata
-- Parameter extraction
+- Resolve mounted sub-applications via `autoRegister` / `registerSubApp`
+- Extract middleware and handler names
 
 ---
 
@@ -117,22 +107,17 @@ The scanner never exposes Express objects directly.
 
 Instead, every discovered endpoint is converted into an internal representation.
 
-Example:
+Current model:
 
 ```ts
 interface InternalRoute {
   method: HttpMethod;
   path: string;
+  handler?: string;
+  middleware?: string[];
+  deprecated?: boolean;
 }
 ```
-
-Future versions may include:
-
-- Parameters
-- Middleware
-- Request schemas
-- Response schemas
-- Authentication metadata
 
 ---
 
@@ -244,30 +229,24 @@ Upcoming tests:
 
 ---
 
-# Future Architecture
+# Current Package Architecture
 
-As RouteUI grows, additional packages are planned.
+All core packages are shipped and published:
 
 ```text
 packages/
 
-core/
-Runtime scanner
+core/         ✅  Runtime scanner
+cli/          ✅  Command-line interface
+express/      ✅  Express middleware
+ui/           ✅  React SPA documentation UI
+```
 
-ui/
-Embedded documentation UI
+Future packages planned:
 
-openapi/
-OpenAPI exporter
-
-cli/
-Command-line interface
-
-fastify/
-Fastify adapter
-
-hono/
-Hono adapter
+```text
+fastify/      📋  Fastify adapter
+hono/         📋  Hono adapter
 ```
 
 The long-term goal is to keep the scanner framework-agnostic while implementing adapters for each supported framework.
@@ -291,22 +270,24 @@ Every major architectural decision should satisfy the following:
 
 ## Completed
 
-- Monorepo foundation
-- Build pipeline
-- Runtime scanner
-- Express adapter
+- Monorepo foundation (pnpm workspaces)
+- Build pipeline (tsup, dual ESM + CJS)
+- Runtime scanner with recursive traversal
+- Express adapter layer
 - Internal route model
-- Initial unit tests
-
-## In Progress
-
-- Recursive scanner
-- Nested router traversal
-- Middleware detection
+- Middleware and handler detection
+- Route parameter extraction
+- Mounted sub-app support (`autoRegister`, `registerSubApp`)
+- Interactive documentation UI (`@routeui/ui`)
+- Express middleware (`@routeui/express`) with production guard and security headers
+- CLI tool (`@routeui/cli`)
+- OpenAPI 3.0 export
+- Bearer token auth in UI
+- Dark / light mode
+- 39 unit and integration tests
 
 ## Planned
 
-- Interactive documentation UI
-- Exporters
-- Multi-framework support
-- Stable public API
+- Fastify adapter (`@routeui/fastify`)
+- Hono adapter (`@routeui/hono`)
+- Stable v1.0.0 public API

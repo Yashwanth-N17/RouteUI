@@ -127,6 +127,9 @@ dist
 
 # pnpm
 .pnpm-store
+# This is a pnpm workspace — pnpm-lock.yaml is the canonical lockfile.
+# Ignore package-lock.json to prevent accidental npm installs.
+package-lock.json
 
 # yarn v3
 .pnp.*

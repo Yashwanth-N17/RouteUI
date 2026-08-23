@@ -11,6 +11,9 @@ export async function loadApp(entryFile: string) {
 
   let module;
   try {
+    // ⚠️  Security: this dynamically executes the target file, equivalent to
+    // running `node <file>` directly. Only scan files you own and trust.
+    // Never run `routeui scan` on untrusted or third-party files.
     module = await import(pathToFileURL(absolutePath).href);
   } catch (error) {
     throw new Error(
