@@ -54,6 +54,15 @@ importers:
         specifier: ^4.21.2
         version: 4.21.2
 
+  examples/mounted-apps:
+    dependencies:
+      '@routeui/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      express:
+        specifier: ^4.21.2
+        version: 4.21.2
+
   examples/multiple-routers:
     dependencies:
       '@routeui/core':

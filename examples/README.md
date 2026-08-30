@@ -14,6 +14,7 @@ This directory contains standalone, runnable demonstration applications showcasi
 | [`params/`](params)                     | Route parameters & wildcards            | `pnpm --filter params-example start`           |
 | [`arrays/`](arrays)                     | Multi-path array route aliases          | `pnpm --filter arrays-example start`           |
 | [`multiple-routers/`](multiple-routers) | Multiple independent mounted routers    | `pnpm --filter multiple-routers-example start` |
+| [`mounted-apps/`](mounted-apps)         | Fully separated mounted Express apps    | `pnpm --filter mounted-apps-example start`     |
 
 ---
 
