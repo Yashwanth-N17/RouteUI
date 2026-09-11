@@ -5,19 +5,19 @@ interface BadgeProps {
 }
 
 const methodStyles: Record<BadgeProps['method'], string> = {
-  GET: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30',
-  POST: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30',
-  PUT: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30',
-  DELETE: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30',
-  PATCH: 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30',
-  HEAD: 'bg-gray-500/15 text-gray-600 dark:text-gray-400 border border-gray-500/30',
-  OPTIONS: 'bg-gray-500/15 text-gray-600 dark:text-gray-400 border border-gray-500/30',
+  GET: 'bg-swagger-get text-white',
+  POST: 'bg-swagger-post text-white',
+  PUT: 'bg-swagger-put text-white',
+  DELETE: 'bg-swagger-delete text-white',
+  PATCH: 'bg-swagger-patch text-gray-900',
+  HEAD: 'bg-swagger-head text-white',
+  OPTIONS: 'bg-swagger-options text-white',
 };
 
 const Badge: React.FC<BadgeProps> = ({ method }) => {
-  const style = methodStyles[method] ?? 'bg-gray-500/15 text-gray-600 dark:text-gray-400 border border-gray-500/30';
+  const style = methodStyles[method] ?? 'bg-gray-500 text-white';
   return (
-    <span className={`px-3 py-1 rounded-full text-xs font-semibold font-mono tracking-wide min-w-[62px] text-center inline-block transition-colors ${style}`}>
+    <span className={`px-3 py-1 rounded-md text-xs font-bold font-mono tracking-wider min-w-[70px] text-center inline-block shadow-xs transition-all ${style}`}>
       {method}
     </span>
   );

@@ -14,6 +14,7 @@ RouteUI comes with 6 standalone example applications in the [`examples/`](../exa
 | [`examples/params`](../examples/params)                     | Route Path Parameters        | Single, multiple (`:userId/posts/:postId`), optional (`:year?`), & wildcards. |
 | [`examples/arrays`](../examples/arrays)                     | Multi-Path Array Definitions | Routes registered with path array aliases (`['/health', '/status']`).         |
 | [`examples/multiple-routers`](../examples/multiple-routers) | Multiple Mounted Routers     | Independent router instances mounted at distinct path prefixes.               |
+| [`examples/exclude`](../examples/exclude)                   | Route Exclusions             | Hiding routes via string prefixes and RegExp matching in scan options.        |
 
 ---
 
@@ -41,6 +42,9 @@ pnpm --filter arrays-example start
 
 # Run Multiple Routers Example
 pnpm --filter multiple-routers-example start
+
+# Run Route Exclusion Example
+pnpm --filter example-exclude start
 ```
 
 ### Direct Execution with `node`
@@ -52,6 +56,7 @@ node examples/middleware/index.js
 node examples/params/index.js
 node examples/arrays/index.js
 node examples/multiple-routers/index.js
+node examples/exclude/index.js
 ```
 
 ### Inspecting Examples with RouteUI CLI
@@ -62,6 +67,7 @@ You can also use `@routeui/cli` to scan any example entry file without launching
 pnpm routeui scan ./examples/basic/index.js
 pnpm routeui scan ./examples/nested/index.js
 pnpm routeui scan ./examples/middleware/index.js
+pnpm routeui scan ./examples/exclude/index.js
 ```
 
 ---
@@ -259,6 +265,40 @@ GET       /products       anonymous   -
 GET       /products/search anonymous  -
 GET       /orders         anonymous   -
 POST      /orders         anonymous   -
+```
+
+---
+
+### 7. Route Exclusion Example (`examples/exclude`)
+
+Demonstrates how to hide routes from the scan results using string prefixes and regular expressions.
+
+#### Code Snippet (`index.js`)
+
+```javascript
+import express from "express";
+import { scanRoutes } from "@routeui/core";
+
+const app = express();
+
+app.get("/", (req, res) => res.json({ message: "Welcome to the Exclude API" }));
+app.get("/public", (req, res) => res.json({ public: true }));
+app.get("/private/data", (req, res) => res.json({ secret: "data" }));
+app.get("/admin/dashboard", (req, res) => res.json({ admin: true }));
+app.post("/internal/webhook", (req, res) => res.json({ received: true }));
+app.get("/api/v1/beta-feature", (req, res) => res.json({ beta: true }));
+
+export default app;
+```
+
+#### Scan Result
+
+```text
+METHOD    PATH                   HANDLER     MIDDLEWARE
+------    ----                   -------     ----------
+GET       /                      anonymous   -
+GET       /public                anonymous   -
+GET       /api/v1/beta-feature   anonymous   -
 ```
 
 ---

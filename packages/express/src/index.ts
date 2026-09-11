@@ -52,7 +52,17 @@ function setSecurityHeaders(res: Response): void {
   res.setHeader('Referrer-Policy', 'no-referrer');
 }
 
-export function routeui(app: Express, options?: RouteUIOptions) {
+export function routeui(appOrOptions?: Express | RouteUIOptions, maybeOptions?: RouteUIOptions) {
+  let appInstance: Express | undefined;
+  let options: RouteUIOptions | undefined;
+
+  if (appOrOptions && typeof (appOrOptions as any).use === 'function') {
+    appInstance = appOrOptions as Express;
+    options = maybeOptions;
+  } else if (appOrOptions && typeof appOrOptions === 'object') {
+    options = appOrOptions as RouteUIOptions;
+  }
+
   // Default: enabled in development, disabled in production.
   // Pass `enabled: true` to override (e.g. behind auth middleware).
   const isEnabled = options?.enabled ?? process.env.NODE_ENV !== 'production';
@@ -85,12 +95,13 @@ export function routeui(app: Express, options?: RouteUIOptions) {
     if (!isEnabled) return next();
 
     const currentPath = req.path || req.url;
+    const targetApp = (appInstance || req.app) as Express;
 
     // Handle metadata routes JSON request
     if (currentPath === "/__routeui/routes") {
       setSecurityHeaders(res);
       res.setHeader("Content-Type", "application/json");
-      return res.send(JSON.stringify(scanRoutes(app)));
+      return res.send(JSON.stringify(scanRoutes(targetApp)));
     }
 
     // Handle metadata info JSON request (version)
@@ -120,7 +131,7 @@ export function routeui(app: Express, options?: RouteUIOptions) {
       setSecurityHeaders(res);
       res.setHeader("Content-Type", "application/json");
       res.setHeader("Content-Disposition", 'inline; filename="openapi.json"');
-      const routes = scanRoutes(app);
+      const routes = scanRoutes(targetApp);
       let version = "0.1.0";
       try {
         const reqFunc = getRequire();
@@ -163,3 +174,5 @@ export function routeui(app: Express, options?: RouteUIOptions) {
     next();
   };
 }
+
+export default routeui;

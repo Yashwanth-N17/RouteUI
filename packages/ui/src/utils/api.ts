@@ -6,6 +6,22 @@ export interface InternalRoute {
   description?: string;
   tags?: string[];
   deprecated?: boolean;
+  responses?: Record<number, { description: string }>;
+}
+
+export type AuthType = 'bearer' | 'apikey' | 'basic' | 'none';
+
+export interface AuthConfig {
+  type: AuthType;
+  // bearer
+  token?: string;
+  // apikey
+  apiKeyName?: string;
+  apiKeyValue?: string;
+  apiKeyIn?: 'header' | 'query';
+  // basic
+  basicUser?: string;
+  basicPass?: string;
 }
 
 /**

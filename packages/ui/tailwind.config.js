@@ -9,11 +9,21 @@ module.exports = {
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
       colors: {
-        methodGet: '#10B981',
-        methodPost: '#3B82F6',
-        methodPut: '#F59E0B',
-        methodDelete: '#EF4444',
-        methodPatch: '#8B5CF6',
+        fastapi: {
+          DEFAULT: '#009688',
+          hover: '#00796b',
+          light: '#e0f2f1',
+          muted: '#009688/15',
+        },
+        swagger: {
+          get: '#61affe',
+          post: '#49cc90',
+          put: '#fca130',
+          delete: '#f93e3e',
+          patch: '#50e3c2',
+          head: '#90a4ae',
+          options: '#607d8b',
+        },
       },
       keyframes: {
         shimmer: {
